@@ -1,4 +1,4 @@
-name: Publish multiarch images on ghcr.io
+name: Build and publish image to dockerhub
 on:
   push:
     branches:
@@ -12,7 +12,7 @@ env:
 
 jobs:
   publish:
-    name: Build and push Spilo multiarch images for pg14
+    name: Build and push Spilo image for pg14
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -37,7 +37,7 @@ jobs:
       working-directory: postgres-appliance
       run: |
         PGVERSION=$(sed -n 's/^ARG PGVERSION=\([1-9][0-9]*\).*$/\1/p' Dockerfile)
-        IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-$PGVERSION:${GITHUB_REF/refs\/tags\//}"
+        IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-$PGVERSION"
         echo "NAME=$IMAGE" >> $GITHUB_OUTPUT
 
     - name: Set up QEMU
@@ -54,7 +54,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_PASS }}
 
     - name: Build and export to local docker for testing
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: "postgres-appliance/"
         load: true
@@ -67,6 +67,13 @@ jobs:
       run: |
         bash postgres-appliance/tests/test_spilo.sh 
 
+    - name: Build and push to dockerhub
+      uses: docker/build-push-action@v3
+      with:
+        context: "postgres-appliance/"
+        push: true
+        tags: ${{ steps.image.outputs.NAME }}
+        build-args: PGVERSION=${{ env.PGVERSION }}
     
     - name: Workspace Notification
       uses: DTherHtun/google-chat-action@v0.9
