@@ -11,6 +11,32 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+
+  test_pre_build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up packages
+      run: sudo apt-get install -y shellcheck
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.7
+    - name: Install flake8 and docker-compose
+      run: python -m pip install flake8 docker-compose==1.17.1
+    - name: Run shellcheck
+      run: find postgres-appliance -name '*.sh' -print0 | xargs -0 shellcheck
+    - name: Run flake8
+      run: find postgres-appliance -name '*.py' -print0 | xargs -0 python -m flake8
+    - name: Build spilo docker image
+      run: cd postgres-appliance && docker build --build-arg PGVERSION=${{ env.PGVERSION }} -t spilo .
+    - name: Test spilo docker image
+      run: bash postgres-appliance/tests/test_spilo.sh
+    - name: Test USE_OLD_LOCALES
+      run: bash -x postgres-appliance/tests/locales_test/test_locales.sh
+      if: github.event_name == 'push'
+
   publish:
     name: Build and push Spilo image for pg14
     runs-on: ubuntu-latest
@@ -60,6 +86,7 @@ jobs:
         tags: ${{ steps.image.outputs.NAME }}
         build-args: PGVERSION=${{ env.PGVERSION }}
 
+    # Test complete build
     - name: Test spilo docker image 
       env:
         SPILO_TEST_IMAGE: "${{ steps.image.outputs.NAME }}"

@@ -1,4 +1,4 @@
-name: ubuntu
+name: Push-Tests PG Version 15
 
 on: 
   pull_request:
@@ -25,7 +25,7 @@ jobs:
     - name: Run flake8
       run: find postgres-appliance -name '*.py' -print0 | xargs -0 python -m flake8
     - name: Build spilo docker image
-      run: cd postgres-appliance && docker build -t spilo .
+      run: cd postgres-appliance && docker build --build-arg PGVERSION=15 -t spilo .  # Change PG version here if nececcary
     - name: Test spilo docker image
       run: bash postgres-appliance/tests/test_spilo.sh
     - name: Test USE_OLD_LOCALES
