@@ -40,7 +40,7 @@ jobs:
 
   publish:
     needs: test_pre_build
-    name: Build and push Spilo image for ${{ env.PGVERSION }}
+    name: Build and push Spilo image for postgress 15
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -125,7 +125,7 @@ jobs:
       env:
         SPILO_TEST_IMAGE: "${{ steps.image.outputs.NAME }}"
       run: envsubst < kubernetes/spilo_kubernetes.yaml | kubectl apply -f -
-      
+
     # Send a Notification to the notification channel    
     - name: Workspace Notification
       uses: DTherHtun/google-chat-action@v0.9
