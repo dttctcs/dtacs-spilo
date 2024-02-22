@@ -55,7 +55,7 @@ spec:
       serviceAccountName: operator
       containers:
       - name: *cluster_name
-        image: registry.opensource.zalan.do/acid/spilo-11:1.5-p5  # put the spilo image here
+        image: ${SPILO_TEST_IMAGE}  # Populated from github action usind envsubst
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8008

@@ -9,6 +9,7 @@ on:
 env:
   PGVERSION: 15
   IMAGE_NAME: ${{ github.repository }}
+  TAG: ${{ github.sha }}
 
 jobs:
 
@@ -38,7 +39,8 @@ jobs:
       if: github.event_name == 'push'
 
   publish:
-    name: Build and push Spilo image for pg14
+    needs: test_pre_build
+    name: Build and push Spilo image for ${{ env.PGVERSION }}
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -62,7 +64,7 @@ jobs:
       id: image
       working-directory: postgres-appliance
       run: |
-        IMAGE="${{ env.IMAGE_NAME }}-${{ env.PGVERSION }}:v0.1"
+        IMAGE="${{ env.IMAGE_NAME }}-${{ env.PGVERSION }}:${{ env.TAG }}"
         echo "NAME=$IMAGE" >> $GITHUB_OUTPUT
 
     - name: Set up QEMU
@@ -102,6 +104,29 @@ jobs:
         tags: ${{ steps.image.outputs.NAME }}
         build-args: PGVERSION=${{ env.PGVERSION }}
     
+
+  kubernetes-installation-test:
+    needs: publish
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: restore spilo image name
+      id: image
+      working-directory: postgres-appliance
+      run: |
+        IMAGE="docker.io/${{ env.IMAGE_NAME }}-${{ env.PGVERSION }}:${{ env.TAG }}"
+        echo "NAME=$IMAGE" >> $GITHUB_OUTPUT
+    - name: Create Kind Cluster
+      uses: helm/kind-action@v1.1.0
+    - name: Install envsubst #used for simpler k8s testing
+      run: apt install envsubst
+    - name: Install Spilo
+      env:
+        SPILO_TEST_IMAGE: "${{ steps.image.outputs.NAME }}"
+      run: envsubst < kubernetes/spilo_kubernetes.yaml | kubectl apply -f -
+      
+    # Send a Notification to the notification channel    
     - name: Workspace Notification
       uses: DTherHtun/google-chat-action@v0.9
       if: always()
