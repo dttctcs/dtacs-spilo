@@ -104,8 +104,8 @@ jobs:
         push: true
         tags: ${{ steps.image.outputs.NAME }}
         build-args: |
-              PGVERSION=${{ env.PGVERSION }}
-              PGOLDVERSIONS=${{ env.PGOLDVERSIONS }}
+              PGVERSION="${{ env.PGVERSION }}"
+              PGOLDVERSIONS="${{ env.PGOLDVERSIONS }}"
     
 
   kubernetes-installation-test:
