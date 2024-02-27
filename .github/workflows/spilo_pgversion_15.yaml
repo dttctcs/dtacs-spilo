@@ -32,7 +32,7 @@ jobs:
     - name: Run flake8
       run: find postgres-appliance -name '*.py' -print0 | xargs -0 python -m flake8
     - name: Build spilo docker image
-      run: cd postgres-appliance && docker build --build-arg PGOLDVERSIONS=${{ env.PGOLDVERSIONS }} --build-arg PGVERSION=${{ env.PGVERSION }} -t spilo .
+      run: cd postgres-appliance && docker build --build-arg PGOLDVERSIONS="${{ env.PGOLDVERSIONS }}" --build-arg PGVERSION="${{ env.PGVERSION }}" -t spilo .
     - name: Test spilo docker image
       run: bash postgres-appliance/tests/test_spilo.sh
     - name: Test USE_OLD_LOCALES
