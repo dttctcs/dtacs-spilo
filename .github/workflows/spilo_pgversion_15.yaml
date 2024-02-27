@@ -103,7 +103,9 @@ jobs:
         context: "postgres-appliance/"
         push: true
         tags: ${{ steps.image.outputs.NAME }}
-        build-args: PGVERSION=${{ env.PGVERSION }}
+        build-args: |
+              PGVERSION=${{ env.PGVERSION }}
+              PGOLDVERSIONS=${{ env.PGOLDVERSIONS }}
     
 
   kubernetes-installation-test:

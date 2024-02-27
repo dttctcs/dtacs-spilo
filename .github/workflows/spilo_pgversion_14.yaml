@@ -41,7 +41,7 @@ jobs:
 
   publish:
     needs: test_pre_build
-    name: Build and push Spilo image for postgress 15
+    name: Build and push Spilo image for postgress 14
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
@@ -103,8 +103,9 @@ jobs:
         context: "postgres-appliance/"
         push: true
         tags: ${{ steps.image.outputs.NAME }}
-        build-args: PGVERSION=${{ env.PGVERSION }}
-    
+        build-args: |
+              PGVERSION=${{ env.PGVERSION }}
+              PGOLDVERSIONS=${{ env.PGOLDVERSIONS }}    
 
   kubernetes-installation-test:
     needs: publish
