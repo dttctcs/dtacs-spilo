@@ -1,4 +1,4 @@
-name: Build and publish image to dockerhub
+name: Build and publish v14 image to dockerhub
 on:
   push:
     branches:
@@ -7,8 +7,9 @@ on:
       - '*'
 
 env:
-  PGVERSION: 14
-  IMAGE_NAME: ${{ github.repository }}
+  PGVERSION: "14"
+  PGOLDVERSIONS: "10 11 12 13"
+  IMAGE_NAME: datatactics/dtacs-spilo
   TAG: ${{ github.sha }}
 
 jobs:
@@ -31,9 +32,9 @@ jobs:
     - name: Run flake8
       run: find postgres-appliance -name '*.py' -print0 | xargs -0 python -m flake8
     - name: Build spilo docker image
-      run: cd postgres-appliance && docker build --build-arg PGVERSION=${{ env.PGVERSION }} -t spilo .
+      run: cd postgres-appliance && docker build --build-arg PGOLDVERSIONS=${{ env.PGOLDVERSIONS }} --build-arg PGVERSION=${{ env.PGVERSION }} -t spilo .
     - name: Test spilo docker image
-      run: bash postgres-appliance/tests/test_spilo.sh
+      run: bash postgres-appliance/tests/test_spilo_pg14.sh
     - name: Test USE_OLD_LOCALES
       run: bash -x postgres-appliance/tests/locales_test/test_locales.sh
       if: github.event_name == 'push'
@@ -94,7 +95,7 @@ jobs:
         SPILO_TEST_IMAGE: "${{ steps.image.outputs.NAME }}"
         PGVERSION: ${{ env.PGVERSION }}
       run: |
-        bash postgres-appliance/tests/test_spilo.sh 
+        bash postgres-appliance/tests/test_spilo_pg14.sh 
 
     - name: Build and push to dockerhub
       uses: docker/build-push-action@v3
