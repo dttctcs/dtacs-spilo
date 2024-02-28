@@ -10,7 +10,7 @@ env:
   PGVERSION: "14"
   PGOLDVERSIONS: "10 11 12 13"
   IMAGE_NAME: datatactics/dtacs-spilo
-  TAG: ${{ github.sha }}
+  TAG: v1.0
 
 jobs:
 

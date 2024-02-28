@@ -9,8 +9,8 @@ on:
 env:
   PGVERSION: "15"
   PGOLDVERSIONS: "10 11 12 13 14"
-  IMAGE_NAME: ${{ github.repository }}
-  TAG: ${{ github.sha }}
+  IMAGE_NAME: datatactics/dtacs-spilo
+  TAG: v1.0
 
 jobs:
 
