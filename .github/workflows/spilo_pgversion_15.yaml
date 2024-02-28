@@ -87,7 +87,9 @@ jobs:
         context: "postgres-appliance/"
         load: true
         tags: ${{ steps.image.outputs.NAME }}
-        build-args: PGVERSION=${{ env.PGVERSION }}
+        build-args: |
+              PGVERSION="${{ env.PGVERSION }}"
+              PGOLDVERSIONS="${{ env.PGOLDVERSIONS }}"    
 
     # Test complete build
     - name: Test spilo docker image 
