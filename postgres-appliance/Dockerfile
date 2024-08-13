@@ -18,7 +18,7 @@ FROM $BASE_IMAGE as dependencies-builder
 
 ARG DEMO
 
-ENV WALG_VERSION=v2.0.1
+ENV WALG_VERSION=REL2_0_STABLE
 
 COPY build_scripts/dependencies.sh /builddeps/
 
